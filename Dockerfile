@@ -3,7 +3,7 @@
 
 FROM nimmis/apache-php7
 
-MAINTAINER Lubomir Bartos <lubomir.bartos@intraworlds.com>
+MAINTAINER Vojtech Kolomicenko <vojtech.kolomicenko@intraworlds.com>
 
 ENV INSTALL_DIR=/var/www/html/IW_API
 
@@ -13,10 +13,10 @@ RUN apt-get update && \
 
 RUN mkdir -p $INSTALL_DIR
 
-COPY configuration/intraworlds.ini /etc/php/7.0/apache2/conf.d
-COPY configuration/composer.json $INSTALL_DIR
-COPY configuration/composer.lock $INSTALL_DIR
-COPY configuration/intraworlds_api.conf /etc/apache2/sites-available/
+COPY build/etc/php/7.0/apache2/conf.d/intraworlds.ini /etc/php/7.0/apache2/conf.d
+COPY build/etc/apache2/sites-available/intraworlds_api.conf /etc/apache2/sites-available/
+COPY composer.json $INSTALL_DIR
+COPY composer.lock $INSTALL_DIR
 COPY src/ $INSTALL_DIR/src/
 COPY test/ $INSTALL_DIR/test/
 

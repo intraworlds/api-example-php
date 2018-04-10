@@ -4,7 +4,7 @@ This is an example connector to the IntraWorlds REST API, written in PHP. The en
 ### Installation
 1. Clone this repository
 2. cd into the local copy
-3. ```docker build -t intraworlds/api-php image```
+3. ```docker build -t intraworlds/api-php .```
 4. ```docker-compose up```
 
 ### Running tests
