@@ -1,0 +1,88 @@
+ <!DOCTYPE html>
+ <html>
+ <head>
+ 	<title>IntraWorlds API</title>
+ 	<link href="public/styles.css" rel="stylesheet" type="text/css" />
+ 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+ 	<script src="public/functions.js"></script> 
+ 	<script src="public/jquery.json-view.js"></script>
+ 	<link href="public/jquery.json-view.css" rel="stylesheet">
+
+
+
+ 	<meta charset="UTF-8"> 
+ </head>
+ <body >
+
+ 	<div id="page">
+
+ 		<div id="header">
+
+ 			<p id="greeting">Welcome to IntraWorlds REST-API</p>
+
+ 			<img src="public/logo.png" alt="IW logo" id="logo">
+
+ 		</div>
+
+ 		
+
+ 		<div id="input_area">
+ 			<form id="input" >
+ 				
+ 				URL: <br>
+ 				<input type="text" value="https://"  id="url" required onkeyup="buttonAbility()" onblur="handleHttpsInUrl();" ><br><br>
+
+ 				
+
+ 				Consumer key: 
+ 				<input type="text"  id="username" required onkeyup="buttonAbility()"><br><br>
+
+ 				Consumer secret: 
+ 				<input type="text"  id="password" required onkeyup="buttonAbility()"><br><br>
+
+ 				<div id="method_payload">
+ 					<div id="method_div">
+ 						Method: 
+ 						<select  id="method" onchange="disablePayload();buttonAbility();">
+ 							<option value="default" > -- </option>
+ 							<option value="METHOD_GET" > GET </option>
+ 							<option value="METHOD_POST"> POST </option>
+ 							<option value="METHOD_PUT" > PUT </option>
+ 							<option value="METHOD_DELETE"> DELETE </option>
+ 						</select> <br><br>
+
+ 					</div>
+ 					<div id="payload_div">
+ 						Payload: 
+ 						<textarea type="text" id="payload" disabled="true" onkeyup="buttonAbility()"></textarea><br><br>
+
+ 					</div>
+
+
+ 				</div>
+
+ 				<div id="button_div">
+ 					<button type="button" id="button" onclick="getResponse()" disabled="true">Request data</button><br><br>
+
+ 				</div>
+
+ 			</form>
+ 		</div>
+
+ 		
+
+ 		<div id="loader"> 
+ 		</div> 
+ 		<div id="response_div">
+ 			<pre id="response_area"></pre>
+
+ 		</div>
+
+
+ 	</div >
+
+
+
+ </body>
+ </html> 
+

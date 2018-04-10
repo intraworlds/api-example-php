@@ -1,0 +1,7 @@
+version: '2'
+services:
+  intraworlds:
+    image: intraworlds/api-php
+    ports:
+      - "7778:80"
+
