@@ -1,8 +1,7 @@
 <?php
 
 use IW\API\Core;
-use IW\API\Api_adapter;
-use IW\API\Api_Exception;
+use IW\API\Api_Adapter;
 use PHPUnit\Framework\TestCase;
 
 final class Core_test extends TestCase{
@@ -10,12 +9,12 @@ final class Core_test extends TestCase{
 
 	protected function setUp(){
         $this->core = new Core(
-            new class() implements Api_adapter {
+            new class() implements Api_Adapter {
                 public function send_request($url, $payload, $method):string {
                     if ($url == 'good') {
                         return '{"api": "good"}';
                     } else {
-                        throw new Api_Exception(500, 'bad', ['header1' => 'detail']);
+                        throw new Api_Adapter\Exception(500, 'bad', ['header1' => 'detail']);
                     }
                 }
             }

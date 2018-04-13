@@ -1,9 +1,11 @@
 <?php
 
+namespace IW\API;
+
+session_start();
+
 $loader = require __DIR__ .'/../vendor/autoload.php';
 
-use IW\API\Core;
-use IW\API\OAuth_adapter;
 
 /*
 * script for handling user input(url, consumer key, consumer secret, method, payload)
@@ -18,7 +20,8 @@ $payload = $_POST["payload"];
 
 $base_url = explode("/rest/", $url)[0];
 
-$adapter = new OAuth_adapter($base_url, $username, $password);
+$token_storage = new Api_Adapter\OAuth\Token_Storage_In_Session($base_url, $username);
+$adapter = new Api_Adapter\OAuth($base_url, $username, $password, $token_storage);
 $core = new Core($adapter);
 
 echo $core->get_response($url, $method, $payload);

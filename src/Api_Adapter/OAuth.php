@@ -1,16 +1,19 @@
 <?php
-namespace IW\API;
+namespace IW\API\Api_Adapter;
+
+use IW\API\Api_Adapter;
 
 /*
 * Class for comunicating with REST API of IntraWorlds.
 */
-class OAuth_adapter implements Api_adapter{
+class OAuth implements Api_Adapter{
 
     private $consumer_key;
     private $consumer_secret;
     private $oauth;
     private $header = array('Accept' => 'application/json', 'Content-Type' => 'application/json');
     private $base_url;
+    private $token_storage;
 
 
     /*
@@ -18,11 +21,11 @@ class OAuth_adapter implements Api_adapter{
     * consumer secret and creates OAuth instance from consumer key and
     * consumer secret.
     */
-    public function __construct($base_url, $consumer_key, $consumer_secret) {
+    public function __construct($base_url, $consumer_key, $consumer_secret, $token_storage) {
         $this->consumer_key = $consumer_key;
         $this->consumer_secret = $consumer_secret;
-
         $this->base_url = $base_url;
+        $this->token_storage = $token_storage;
 
         $this->oauth = new \OAuth($this->consumer_key, $this->consumer_secret);
     }
@@ -43,10 +46,7 @@ class OAuth_adapter implements Api_adapter{
     * If called for the first time or if the access token need renewal, it does the full authentication.
     */
     private function init_access_token($force_access_token_renewal = false) {
-        $unique_access_token_key = $this->base_url . $this->consumer_key;
-
-        if ($force_access_token_renewal || !isset($_SESSION[$unique_access_token_key])
-            || $_SESSION[$unique_access_token_key] == null) {
+        if ($force_access_token_renewal || ($accessToken = $this->token_storage->retrieve_token()) == null) {
 
             $reqUrl = $this->base_url.'/remoteapi/oauth/request-token?auth=1';
             $accUrl = $this->base_url.'/remoteapi/oauth/access-token';
@@ -54,29 +54,29 @@ class OAuth_adapter implements Api_adapter{
             $requestToken = $this->oauth->getRequestToken($reqUrl);
             $this->oauth->setToken($requestToken['oauth_token'], $requestToken['oauth_token_secret']);
 
-            $_SESSION[$unique_access_token_key] = $this->oauth->getAccessToken($accUrl);
+            $accessToken = $this->oauth->getAccessToken($accUrl);
+            $this->token_storage->store_token($accessToken);
         }
 
-        $accessToken = $_SESSION[$unique_access_token_key];
         $this->oauth->setToken($accessToken['oauth_token'], $accessToken['oauth_token_secret']);
     }
 
     private function send_request_inner($url, $payload, $method, $force_access_token_renewal = false) {
         try {
-            $token = $this->init_access_token($force_access_token_renewal);
+            $this->init_access_token($force_access_token_renewal);
 
             switch ($method) {
-                case Api_adapter::HTTP_METHOD_GET:
+                case Api_Adapter::HTTP_METHOD_GET:
                     $payload = '';
                     $oauth_method = OAUTH_HTTP_METHOD_GET;
                     break;
-                case Api_adapter::HTTP_METHOD_POST:
+                case Api_Adapter::HTTP_METHOD_POST:
                     $oauth_method = OAUTH_HTTP_METHOD_POST;
                     break;
-                case Api_adapter::HTTP_METHOD_PUT:
+                case Api_Adapter::HTTP_METHOD_PUT:
                     $oauth_method = OAUTH_HTTP_METHOD_PUT;
                     break;
-                case Api_adapter::HTTP_METHOD_DELETE:
+                case Api_Adapter::HTTP_METHOD_DELETE:
                     $oauth_method = OAUTH_HTTP_METHOD_DELETE;
                     break;
                 default:
@@ -87,16 +87,15 @@ class OAuth_adapter implements Api_adapter{
 
             return $this->oauth->getLastResponse();
         } catch (\OAuthException $e) {
-            if ($e->getCode() == '400' && !$force_access_token_renewal) {
+            if ($e->getCode() == '401' && !$force_access_token_renewal) {
                 // the access token must have expired => try it once again
                 return $this->send_request_inner($url, $payload, $method, true);
             }else{
                 $info = $this->oauth->getLastResponseInfo();
 
-                throw new Api_Exception($e->getCode(), $e->getMessage(), $info);
+                throw new Exception($e->getCode(), $e->getMessage(), $info);
             }
 
         }
     }
-
 }

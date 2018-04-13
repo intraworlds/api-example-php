@@ -15,7 +15,7 @@ class Core{
 			$json = $this->api_adapter->send_request($url, $payload, $method);
 			$response = '{"response_body":'.$json.'}';
 			$response_code = 200;
-		} catch (Api_Exception $e){
+		} catch (Api_Adapter\Exception $e){
 			$response = $e->getMessage();
 			$response_code = $e->getCode();
 		}
