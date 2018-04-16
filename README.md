@@ -11,3 +11,8 @@ This is an example connector to the IntraWorlds REST API, written in PHP. The en
 1. Exec to the docker container
 2. ```cd /var/www/html/IW_API/```
 3. ```./vendor/bin/phpunit --bootstrap ./vendor/autoload.php ./test/*.php```
+
+### Running checkstyle
+1. Exec to the docker container
+2. ```cd /var/www/html/IW_API/```
+3. ```./vendor/squizlabs/php_codesniffer/bin/phpcs --standard=./phpcs.xml ./src/```

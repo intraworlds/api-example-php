@@ -1,46 +1,96 @@
 <?php
 
 use IW\API\Core;
-use IW\API\Api_Adapter;
+use IW\API\ApiAdapter;
 use PHPUnit\Framework\TestCase;
-
-final class Core_test extends TestCase{
-	private $core;
-
-	protected function setUp(){
-        $this->core = new Core(
-            new class() implements Api_Adapter {
-                public function send_request($url, $payload, $method):string {
+/**
+ * Class for testing Core.php
+ */
+final class CoreTest extends TestCase
+{
+    private $_core;
+    /**
+     * Set up function for creating Core instance
+     * 
+     * @return void
+     */
+    protected function setUp()
+    {
+        $this->_core = new Core(
+            new class() implements ApiAdapter {
+                /**
+                  * Method that fetches response from 
+                  * intraworlds REST API from payload
+                  * and chosen method.
+                  * returns response in JSON if there was no error
+                  * throws an Exception when an error occurs
+                  *
+                  * @param string $url     url for api request
+                  * @param string $payload payload for api request
+                  * @param string $method  method for api request
+                  *
+                  * @return string representation of response
+                  */
+                public function sendRequest($url, $payload, $method):string 
+                {
                     if ($url == 'good') {
                         return '{"api": "good"}';
                     } else {
-                        throw new Api_Adapter\Exception(500, 'bad', ['header1' => 'detail']);
+                        throw new ApiAdapter\Exception(
+                            500, 'bad', ['header1' => 'detail']
+                        );
                     }
                 }
             }
         );
 
-	}
+    }
+    /**
+     * Test for successful response
+     *
+     * @return void
+     */
+    public function testGetResponseSuccess()
+    {
+        $decodedResponse = json_decode(
+            $this->_core->getResponse(
+                "good", 
+                "", ""
+            ), true
+        );
 
-	public function test_getResponse_success(){
-		$decoded_response = json_decode($this->core->get_response("good", "", ""), true);
+        $response = $decodedResponse["response"];
+        $time = $decodedResponse["time"];
+        $responseJson = json_encode($response);
 
-		$response = $decoded_response["response"];
-		$time = $decoded_response["time"];
-		$response_json = json_encode($response);
-
-        $this->assertEquals('{"response_code":200,"response_body":{"api":"good"}}', $response_json);
+        $this->assertEquals(
+            '{"responseCode":200,"responseBody":{"api":"good"}}',
+            $responseJson
+        );
         $this->assertInternalType("numeric", $time);
-	}
+    }
+    /**
+     * Test for failure
+     *
+     * @return void
+     */
+    public function testGetResponseFailure()
+    {
+        $decodedResponse = json_decode(
+            $this->_core->getResponse(
+                "bad", 
+                "", ""
+            ), true
+        );
 
-    public function test_getResponse_failure(){
-        $decoded_response = json_decode($this->core->get_response("bad", "", ""), true);
+        $response = $decodedResponse["response"];
+        $time = $decodedResponse["time"];
+        $responseJson = json_encode($response);
 
-        $response = $decoded_response["response"];
-        $time = $decoded_response["time"];
-        $response_json = json_encode($response);
-
-        $this->assertEquals('{"response_code":500,"response_detail":"bad","response_headers":{"header1":"detail"}}', $response_json);
+        $this->assertEquals(
+            '{"responseCode":500,"responseDetail":"bad",'+
+            '"responseHeaders":{"header1":"detail"}}', $responseJson
+        );
         $this->assertInternalType("numeric", $time);
     }
 }

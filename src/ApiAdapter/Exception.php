@@ -1,18 +1,32 @@
 <?php
 
-namespace IW\API\Api_Adapter;
+namespace IW\API\ApiAdapter;
 
 /**
- * Exception message contains json with response_code, response_detail, response_headers
+ * Exception message contains json with responseCode, responseDetail, responseHeaders
  */
-class Exception extends \Exception {
-    public function __construct(int $response_code, string $response_detail, array $response_headers) {
-        $json = json_encode([
-            'response_detail' => $response_detail,
-            'response_headers' => $response_headers
-        ]);
+class Exception extends \Exception
+{
+    /**
+     * Constructor for creating exception from responseCode, 
+     * responseDetail, responseHeaders
+     *
+     * @param int    $responseCode    code of response
+     * @param string $responseDetail  details of response
+     * @param array  $responseHeaders response headers
+     */
+    public function __construct(int $responseCode, 
+        string $responseDetail, array $responseHeaders
+    ) { 
+    
+        $json = json_encode(
+            [
+            'responseDetail' => $responseDetail,
+            'responseHeaders' => $responseHeaders
+            ]
+        );
 
-        parent::__construct($json, $response_code);
+        parent::__construct($json, $responseCode);
     }
 
 }

@@ -1,19 +1,40 @@
 <?php
-namespace IW\API\Api_Adapter\OAuth;
-
-class Token_Storage_In_Session {
-    private $unique_access_token_key;
-
-    public function __construct($base_url, $consumer_key) {
-        $this->unique_access_token_key = 'OAUTH_TOKEN_' . $base_url . $consumer_key;
+namespace IW\API\ApiAdapter\OAuth;
+/**
+ * Class for storing access token from credentials.
+ */
+class TokenStorageInSession
+{
+    private $_uniqueAccessTokenKey;
+    /**
+     * Constructor for setting token from user's url and consumer key.
+     *
+     * @param string $baseUrl     user's url
+     * @param string $consumerKey user's consumer key
+     */
+    public function __construct($baseUrl, $consumerKey) 
+    {
+        $this->_uniqueAccessTokenKey = 'OAUTH_TOKEN_' . $baseUrl . $consumerKey;
     }
-
-    public function store_token($token) {
-        $_SESSION[$this->unique_access_token_key] = $token;
+    /**
+     * Method for storing token in $_SESSION.
+     *
+     * @param string $token token to store
+     *
+     * @return void
+     */
+    public function storeToken($token) 
+    {
+        $_SESSION[$this->_uniqueAccessTokenKey] = $token;
     }
-
-    public function retrieve_token() {
-        return $_SESSION[$this->unique_access_token_key] ?? null;
+    /**
+     * Method for retrieving token from $_SESSION.
+     *
+     * @return stored token
+     */
+    public function retrieveToken() 
+    {
+        return $_SESSION[$this->_uniqueAccessTokenKey] ?? null;
     }
 
 }
