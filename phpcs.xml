@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<ruleset name="IW-API-standard" namespace="IW\API">
+
+	<rule ref="PEAR">
+		<exclude name="PEAR.Commenting.FileComment"/>
+		<exclude name="PEAR.Commenting.ClassComment"/>
+	</rule>
+
+
+</ruleset>
