@@ -1,44 +1,72 @@
 <?php
 namespace IW\API;
+/**
+ * Purpose of class Core is communicating with api adapter.
+ */
+class Core
+{
+    private $_apiAdapter;
+    /**
+     * Constructor that sets api Adapter.
+     *
+     * @param ApiAdapter $apiAdapter adapter, that can communicate with api
+     */
+    public function __construct(ApiAdapter $apiAdapter)
+    {
+        $this->_apiAdapter = $apiAdapter;
+    }
+    /**
+     * Function getResponse gets formatted response from api adapter.
+     *
+     * @param string $url     url of api
+     * @param string $method  method we are using
+     * @param string $payload payload provided for api
+     *
+     * @return json formatted response with time, response and response code
+     */
+    public function getResponse($url, $method, $payload)
+    {
+        $startTime = microtime(true);
 
-class Core{
-	private $api_adapter;
+        try 
+        {
+            $json = $this->_apiAdapter->sendRequest($url, $payload, $method);
+            $response = '{"responseBody":'.$json.'}';
+            $responseCode = 200;
+        } catch (ApiAdapter\Exception $e)
+        {
+            $response = $e->getMessage();
+            $responseCode = $e->getCode();
+        }
 
-	public function __construct(Api_adapter $api_adapter){
-		$this->api_adapter = $api_adapter;
-	}
+        $totalTime = microtime(true) - $startTime;
 
-	public function get_response($url, $method, $payload){
-		$start_time = microtime(true);
+        return $this->_formatResponse($totalTime, $response, $responseCode);
+    }
+    /**
+     * Function _formatResponse formats response, time and response code into json.
+     *
+     * @param float  $totalTime    meaured time the response took to arrive
+     * @param string $response     response in json
+     * @param int    $responseCode code of response
+     *
+     * @return json formatted response with time, response and response code
+     */
+    private function _formatResponse($totalTime, $response, $responseCode)
+    {
+        $decodedResponse = json_decode($response);
+        $tomeAndResponse = [
+            'time' => $totalTime,
+            'response' => [
+                'responseCode' => $responseCode,
+            ]
+        ];
 
-		try {
-			$json = $this->api_adapter->send_request($url, $payload, $method);
-			$response = '{"response_body":'.$json.'}';
-			$response_code = 200;
-		} catch (Api_Adapter\Exception $e){
-			$response = $e->getMessage();
-			$response_code = $e->getCode();
-		}
+        foreach ($decodedResponse as $key => $value) {
+            $tomeAndResponse['response'][$key] = $value;
+        }
 
-		$total_time = microtime(true) - $start_time;
-
-		return $this->format_response($total_time, $response, $response_code);
-	}
-
-	private function format_response($total_time, $response, $response_code){
-		$decoded_response = json_decode($response);
-		$time_and_response = [
-			'time' => $total_time,
-			'response' => [
-				'response_code' => $response_code,
-			]
-		];
-
-		foreach ($decoded_response as $key => $value) {
-			$time_and_response['response'][$key] = $value;
-		}
-
-		return json_encode($time_and_response);
-	}
+        return json_encode($tomeAndResponse);
+    }
 
 }
